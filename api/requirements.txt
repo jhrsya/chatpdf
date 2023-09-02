@@ -1,0 +1,10 @@
+langchain
+cchardet
+chardet
+openai
+tiktoken
+chromadb
+pinecone-client
+unstructured
+pypdf
+python-multipart
