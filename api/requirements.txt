@@ -1,10 +1,15 @@
 langchain
-cchardet
+langchain-openai
 chardet
 openai
 tiktoken
 chromadb
+langchain-community
+langchain-chroma
 pinecone-client
 unstructured
 pypdf
 python-multipart
+uvicorn
+python-dotenv
+gradio

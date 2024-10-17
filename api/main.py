@@ -14,6 +14,10 @@ from utils.constant import UPLOAD_DIR, CHROMA_PATH
 from langchain.chains.question_answering import load_qa_chain
 import json
 from utils.tools import validate_index_name
+from dotenv import load_dotenv
+
+# 加载 .env 文件中的环境变量
+load_dotenv()
 
 
 app = FastAPI()
@@ -69,8 +73,10 @@ async def upload_file(file: UploadFile):
         # 修改文件名
         with open(os.path.join(UPLOAD_DIR, "file_name.json"), "w") as f:
             json.dump({"file_name": index_name}, f, indent=4)
+        # 读取文件内容为字节数据
+        bytes_data = await file.read()
         # 读取数据
-        documents = get_documents_from_bytes(bytes_data=file.file.read(), source=index_name)
+        documents = get_documents_from_bytes(bytes_data=bytes_data, source=index_name)
         # 创建Chroma数据库
         
         create_index_by_chroma(documents=documents, 
@@ -78,7 +84,7 @@ async def upload_file(file: UploadFile):
 
         return "upload success"
     except Exception as e:
-        # raise e
+        raise e
         return "upload failed"
 
 
