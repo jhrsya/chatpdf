@@ -15,6 +15,8 @@ from langchain.chains.question_answering import load_qa_chain
 import json
 from utils.tools import validate_index_name
 from dotenv import load_dotenv
+from typing import List
+
 
 # 加载 .env 文件中的环境变量
 load_dotenv()
@@ -34,6 +36,10 @@ app.add_middleware(
 class UserMessage(BaseModel):
     message: str
 
+class ChatHistory(BaseModel):
+    history: List[dict]
+    message: str
+
 @app.get("/")
 async def root():
     return {"message": "Hello World"}
@@ -43,21 +49,35 @@ async def test_endpoint(msg: UserMessage):
     return "Hello World" + msg.message
 
 
+
+
+
 @app.post("/chat_file")
-async def chat_file(msg: UserMessage):
+async def chat_file(msg: ChatHistory):
 
     # 读取文件名
     with open(os.path.join(UPLOAD_DIR, "file_name.json"), "r") as f:
         fread = json.load(f)
         file_name = fread["file_name"]
 
-    # 获取与query相似的文档
-    docs = get_similar_docs_from_chroma(query=msg.message, 
+    # 拼接对话历史到当前问题
+    conversation_context = ""
+    for item in msg.history:
+        conversation_context += f"User: {item['user']}\nAssistant: {item['assistant']}\n"
+    conversation_context += f"User: {msg.message}\n"
+
+    # 获取与 query 相似的文档
+    docs = get_similar_docs_from_chroma(query=conversation_context, 
                                         chroma_directory=os.path.join(CHROMA_PATH, file_name))
 
+    # 生成答案
     answer = get_answer_from_chain(docs=docs, query=msg.message, load_chain=load_qa_chain)
 
-    return answer["output_text"]
+    # 将当前对话保存到历史中
+    new_history_entry = {"user": msg.message, "assistant": answer["output_text"]}
+    msg.history.append(new_history_entry)
+
+    return {"answer": answer["output_text"], "history": msg.history}
 
 
 
