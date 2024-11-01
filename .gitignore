@@ -2,3 +2,5 @@
 data
 .env
 test.ipynb
+.vscode
+api/.env
