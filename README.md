@@ -40,6 +40,16 @@ OPENAI_API_KEY=your_openai_api_key_here
 ```
 将your_openai_api_key_here替换为您实际的 OpenAI API 密钥。
 
+
+#### 创建环境
+```
+conda create -n chatpdf python=3.10
+conda activate chatpdf
+pip config set global.index-url https://pypi.tuna.tsinghua.edu.cn/simple
+cd chatpdf
+pip install -r requirement.txt
+```
+
 #### 启动
 1. 启动后端
 ```
